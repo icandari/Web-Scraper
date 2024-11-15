@@ -12,21 +12,13 @@ app.use(express.json());
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Route to scrape data dynamically based on the provided URL
-app.post("/api/courses", async (req, res) => {
-  const { url } = req.body;
-
-  if (!url) {
-    return res.status(400).json({ error: "URL is required." });
-  }
-
+// Function to scrape a single URL
+async function scrapeCourses(url) {
   try {
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
     const courses = [];
-
-    // Iterate through the tables that contain course data
     $(".TableRichTextElement-items table tbody tr").each((index, element) => {
       const courseNumber = $(element).find("td").eq(0).text().trim();
       const courseTitle = $(element).find("td").eq(1).text().trim();
@@ -44,11 +36,36 @@ app.post("/api/courses", async (req, res) => {
         });
       }
     });
+    return courses;
+  } catch (error) {
+    console.error(`Error scraping ${url}:`, error.message);
+    return [];
+  }
+}
 
-    res.json(courses);
+// Route to scrape data for major and minors
+app.post("/api/courses", async (req, res) => {
+  const { majorUrl, minor1Url, minor2Url } = req.body;
+
+  if (!majorUrl || !minor1Url || !minor2Url) {
+    return res.status(400).json({ error: "All three URLs are required." });
+  }
+
+  try {
+    const [majorCourses, minor1Courses, minor2Courses] = await Promise.all([
+      scrapeCourses(majorUrl),
+      scrapeCourses(minor1Url),
+      scrapeCourses(minor2Url),
+    ]);
+
+    res.json({
+      majorCourses,
+      minor1Courses,
+      minor2Courses,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Failed to scrape the provided URL." });
+    res.status(500).json({ error: "Failed to scrape one or more URLs." });
   }
 });
 

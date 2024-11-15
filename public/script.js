@@ -1,8 +1,10 @@
-document.getElementById("submit-url").addEventListener("click", async () => {
-    const url = document.getElementById("program-url").value.trim();
+document.getElementById("submit-urls").addEventListener("click", async () => {
+    const majorUrl = document.getElementById("major-url").value.trim();
+    const minor1Url = document.getElementById("minor1-url").value.trim();
+    const minor2Url = document.getElementById("minor2-url").value.trim();
   
-    if (!url) {
-      alert("Please enter a valid URL.");
+    if (!majorUrl || !minor1Url || !minor2Url) {
+      alert("Please enter all three URLs.");
       return;
     }
   
@@ -12,37 +14,58 @@ document.getElementById("submit-url").addEventListener("click", async () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ majorUrl, minor1Url, minor2Url }),
       });
   
       if (!response.ok) {
-        throw new Error("Failed to fetch course data. Please check the URL.");
+        throw new Error("Failed to fetch course data. Please check the URLs.");
       }
   
-      const courses = await response.json();
+      const { majorCourses, minor1Courses, minor2Courses } = await response.json();
   
-      const coursesDiv = document.getElementById("courses");
-      coursesDiv.innerHTML = "";
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "";
   
-      if (courses.length === 0) {
-        coursesDiv.innerHTML = "<p>No courses found for the provided URL.</p>";
-        return;
-      }
-  
-      courses.forEach((course) => {
-        const courseDiv = document.createElement("div");
-        courseDiv.style.border = "1px solid #ccc";
-        courseDiv.style.margin = "10px";
-        courseDiv.style.padding = "10px";
-  
-        courseDiv.innerHTML = `
-          <h3>${course.courseNumber}: ${course.courseTitle}</h3>
-          <p><strong>Semesters Offered:</strong> ${course.semestersOffered}</p>
-          <p><strong>Credits:</strong> ${course.creditHours}</p>
-          <p><strong>Prerequisites:</strong> ${course.prerequisites || "None"}</p>
+      // Display major courses
+      resultsDiv.innerHTML += "<h2>Major Courses</h2>";
+      majorCourses.forEach((course) => {
+        resultsDiv.innerHTML += `
+          <div>
+            <h3>${course.courseNumber}: ${course.courseTitle}</h3>
+            <p><strong>Semesters Offered:</strong> ${course.semestersOffered}</p>
+            <p><strong>Credits:</strong> ${course.creditHours}</p>
+            <p><strong>Prerequisites:</strong> ${course.prerequisites || "None"}</p>
+          </div>
+          <hr>
         `;
+      });
   
-        coursesDiv.appendChild(courseDiv);
+      // Display minor 1 courses
+      resultsDiv.innerHTML += "<h2>Minor 1 Courses</h2>";
+      minor1Courses.forEach((course) => {
+        resultsDiv.innerHTML += `
+          <div>
+            <h3>${course.courseNumber}: ${course.courseTitle}</h3>
+            <p><strong>Semesters Offered:</strong> ${course.semestersOffered}</p>
+            <p><strong>Credits:</strong> ${course.creditHours}</p>
+            <p><strong>Prerequisites:</strong> ${course.prerequisites || "None"}</p>
+          </div>
+          <hr>
+        `;
+      });
+  
+      // Display minor 2 courses
+      resultsDiv.innerHTML += "<h2>Minor 2 Courses</h2>";
+      minor2Courses.forEach((course) => {
+        resultsDiv.innerHTML += `
+          <div>
+            <h3>${course.courseNumber}: ${course.courseTitle}</h3>
+            <p><strong>Semesters Offered:</strong> ${course.semestersOffered}</p>
+            <p><strong>Credits:</strong> ${course.creditHours}</p>
+            <p><strong>Prerequisites:</strong> ${course.prerequisites || "None"}</p>
+          </div>
+          <hr>
+        `;
       });
     } catch (error) {
       alert(error.message);
