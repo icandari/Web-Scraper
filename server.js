@@ -6,13 +6,21 @@ const path = require("path");
 const app = express();
 const PORT = 3000;
 
+// Middleware to parse JSON request body
+app.use(express.json());
+
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Route to scrape data
-app.get("/api/courses", async (req, res) => {
+// Route to scrape data dynamically based on the provided URL
+app.post("/api/courses", async (req, res) => {
+  const { url } = req.body;
+
+  if (!url) {
+    return res.status(400).json({ error: "URL is required." });
+  }
+
   try {
-    const url = "https://catalog.byuh.edu/computer-science-bs";
     const { data } = await axios.get(url);
     const $ = cheerio.load(data);
 
@@ -40,7 +48,7 @@ app.get("/api/courses", async (req, res) => {
     res.json(courses);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error scraping the data.");
+    res.status(500).json({ error: "Failed to scrape the provided URL." });
   }
 });
 

@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Course Information</title>
+  <title>Dynamic Course Scraper</title>
 </head>
 <body>
-  <h1>BYU-H Computer Science Courses</h1>
-  <button id="fetch-courses">Fetch Courses</button>
+  <h1>BYU-H Program Course Scraper</h1>
+  <label for="program-url">Enter Program URL:</label>
+  <input type="text" id="program-url" placeholder="https://catalog.byuh.edu/computer-science-bs" />
+  <button id="submit-url">Submit</button>
+
   <div id="courses"></div>
+
   <script src="script.js"></script>
 </body>
 </html>
